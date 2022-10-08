@@ -226,14 +226,14 @@ resource "aws_instance" "wordpressec2" {
 
 
 output "IP" {
-  value = aws_eip.eip.public_ip
+  value = aws_instance.wordpressec2.id
 }
 output "RDS-Endpoint" {
   value = aws_db_instance.wordpressdb.endpoint
 }
 
 output "INFO" {
-  value = "AWS Resources and Wordpress has been provisioned. Go to http://${aws_eip.eip.public_ip}"
+  value = "AWS Resources and Wordpress has been provisioned. Go to http://${aws_instance.wordpressec2.id}"
 }
 
 # Save Rendered playbook content to local file
