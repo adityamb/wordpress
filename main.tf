@@ -181,7 +181,7 @@ data "template_file" "playbook" {
 
 # Create EC2 ( only after RDS is provisioned)
 resource "aws_instance" "wordpressec2" {
-  ami             = local.ami
+  ami             = local.ami_id
   instance_type   = var.instance_type
   subnet_id       = aws_subnet.prod-subnet-public-1.id
   security_groups = ["${aws_security_group.ec2_allow_rule.id}"]
