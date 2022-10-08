@@ -212,7 +212,7 @@ resource "aws_instance" "wordpressec2" {
 
 # Play ansiblw playbook
   provisioner "local-exec" {
-     command = "ansible-playbook -u ec2-user -i '${aws_eip.eip.public_ip},' --private-key ${var.PRIV_KEY_PATH}  playbook-render.yml"
+     command = "ansible-playbook -i myhosts --user ${local.ssh_user} --private-key ${local.private_key_path} playbook_word.yml"
      
 }
 
@@ -223,10 +223,7 @@ resource "aws_instance" "wordpressec2" {
 # Sends your public key to the instance
 
 # creating Elastic IP for EC2
-resource "aws_eip" "eip" {
-  instance = aws_instance.wordpressec2.id
 
-}
 
 output "IP" {
   value = aws_eip.eip.public_ip
@@ -240,10 +237,5 @@ output "INFO" {
 }
 
 # Save Rendered playbook content to local file
-resource "local_file" "playbook-rendered-file" {
-  content = "${data.template_file.playbook.rendered}"
-  filename = "./playbook-rendered.yml"
-}
-
 
 
