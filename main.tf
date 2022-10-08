@@ -188,33 +188,7 @@ resource "aws_instance" "wordpressec2" {
   tags = {
     Name = "Wordpress.web"
   }
-  connection {
-    type = "ssh"
-    host = self.public_ip
-    user = local.ssh_user
-    private_key = file(local.private_key_path)
-    timeout = "4m"
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "hostname"
-    ]
-  }
   
-
- # Run script to update python on remote client
-  provisioner "remote-exec" {
-     
-     inline = ["sudo yum update -y","sudo yum install python3 -y", "echo Done!"]
-   
-  }
-
-# Play ansiblw playbook
-  provisioner "local-exec" {
-     command = "ansible-playbook -i myhosts --user ${local.ssh_user} --private-key ${local.private_key_path} playbook_word.yml"
-     
-}
 
   # this will stop creating EC2 before RDS is provisioned
   depends_on = [aws_db_instance.wordpressdb]
@@ -237,5 +211,28 @@ output "INFO" {
 }
 
 # Save Rendered playbook content to local file
+resource "null_resource" "Wordpress_Installation_Waiting" {
+connection {
+    type = "ssh"
+    host = self.public_ip
+    user = local.ssh_user
+    private_key = file(local.private_key_path)
+    timeout = "4m"
+  }
 
+  
+
+ # Run script to update python on remote client
+  provisioner "remote-exec" {
+     
+     inline = ["sudo yum update -y","sudo yum install python3 -y", "echo Done!"]
+   
+  }
+
+# Play ansiblw playbook
+  provisioner "local-exec" {
+     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user -i '${aws_instance.wordpressec2.id},' --private-key ${local.private_key_path} playbook_word.yml"
+     
+}
+}
 
