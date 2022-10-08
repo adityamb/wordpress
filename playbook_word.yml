@@ -1,0 +1,85 @@
+- name: Install wordpress in new server
+  hosts: all
+  become: yes
+ 
+    
+  tasks:
+
+  - name: Setting up variables
+    set_fact:
+      php_modules: [  'php-fpm','php-mysqlnd', 'php-curl', 'php-gd', 'php-mbstring', 'php-xml', 'php-xmlrpc', 'php-soap', 'php-intl', 'php-zip' ]
+
+      #MySQL Settings to be rendered by terraform
+      mysql_rds: ${db_RDS}  
+      mysql_db: ${db_name}
+      mysql_user: ${db_username}
+      mysql_password: ${db_user_password}
+
+  
+  
+
+  
+
+  - name: Yum update
+    yum:
+      name: '*'
+      state: latest
+
+  - name: install Apache server
+    yum: name={{ item }} state=present
+    loop: [ 'httpd','mysql']    
+      
+ #installing php using linux-extra
+  
+  - name: Installing PHP
+    shell: amazon-linux-extras enable php7.4
+
+  - name: Clean metadata
+    shell: yum clean metadata
+
+
+
+  
+
+  # install php extension
+  - name: install php extensions
+    yum: name={{ item }} state=present
+    loop: "{{ php_modules }}"
+
+
+  - name: Set permissions for directories
+    shell: "/usr/bin/find /var/www/html/ -type d -exec chmod 2775 {} \\;"
+    
+
+  - name: Set permissions for files
+    shell: "/usr/bin/find /var/www/html/ -type f -exec chmod 0664 {} \\;"    
+            
+  # wordpress download and install
+  - name: Wordpress download and unpacking
+    unarchive:
+      src: https://wordpress.org/latest.tar.gz
+      dest: "/var/www"
+      remote_src: yes
+  
+  - name: Copy wordpress files to /html folder
+    shell: cp /var/www/wordpress/. /var/www/html -r
+
+  - name: Delete old wordpress files
+    shell: rm /var/www/wordpress -r 
+ 
+    
+  - name: Set up wp-config
+    template:
+      src: "files/wp-config.php.j2"
+      dest: "/var/www/html/wp-config.php"
+        
+  - name: set permissions (changing ownership)
+    shell: chown -R ec2-user:apache /var/www/html
+
+  - name: set permission (chmod 774)  
+    shell: chown -R ec2-user:apache /var/www/html
+
+   # apache  server started
+  - name: services started   
+    service: name={{ item }} state=restarted enabled=True
+    loop: [ 'httpd']
