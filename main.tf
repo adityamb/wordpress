@@ -181,12 +181,12 @@ data "template_file" "playbook" {
 
 # Create EC2 ( only after RDS is provisioned)
 resource "aws_instance" "wordpressec2" {
-  ami             = var.ami
+  ami             = local.ami
   instance_type   = var.instance_type
   subnet_id       = aws_subnet.prod-subnet-public-1.id
   security_groups = ["${aws_security_group.ec2_allow_rule.id}"]
   
-  key_name = aws_key_pair.mykey-pair.id
+  key_name = local.key_name
   tags = {
     Name = "Wordpress.web"
   }
@@ -195,11 +195,7 @@ resource "aws_instance" "wordpressec2" {
   depends_on = [aws_db_instance.wordpressdb]
 }
 
-// Sends your public key to the instance
-resource "aws_key_pair" "mykey-pair" {
-  key_name   = "mykey-pair"
-  public_key = file(var.PUBLIC_KEY_PATH)
-}
+# Sends your public key to the instance
 
 # creating Elastic IP for EC2
 resource "aws_eip" "eip" {
@@ -228,7 +224,7 @@ resource "null_resource" "Wordpress_Installation_Waiting" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file(var.PRIV_KEY_PATH)
+    private_key = file(local.private_key_path)
     host        = aws_eip.eip.public_ip
   }
 
