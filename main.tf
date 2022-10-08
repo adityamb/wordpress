@@ -214,7 +214,7 @@ output "INFO" {
 resource "null_resource" "Wordpress_Installation_Waiting" {
 connection {
     type = "ssh"
-    host = self.public_ip
+    host = aws_instance.wordpressec2.id
     user = local.ssh_user
     private_key = file(local.private_key_path)
     timeout = "4m"
