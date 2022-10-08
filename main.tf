@@ -212,7 +212,7 @@ resource "aws_instance" "wordpressec2" {
 
 # Play ansiblw playbook
   provisioner "local-exec" {
-     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user -i '${aws_eip.eip.public_ip},' --private-key ${var.PRIV_KEY_PATH}  playbook_word.yml"
+     command = "ansible-playbook -u ec2-user -i '${aws_eip.eip.public_ip},' --private-key ${var.PRIV_KEY_PATH}  playbook-render.yml"
      
 }
 
@@ -240,7 +240,10 @@ output "INFO" {
 }
 
 # Save Rendered playbook content to local file
-
+resource "local_file" "playbook-rendered-file" {
+  content = "${data.template_file.playbook.rendered}"
+  filename = "./playbook-rendered.yml"
+}
 
 
 
