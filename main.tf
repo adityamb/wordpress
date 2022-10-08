@@ -4,6 +4,7 @@ locals {
   ssh_user = "ubuntu"
   key_name = "Demokey"
   private_key_path = "/home/labsuser/wordpress_proj/Demokey.pem"
+  prodigw_id= "igw-0f19805ee0671b5ea"
 }
 
 provider "aws" {
@@ -21,7 +22,7 @@ resource "aws_security_group" "demoaccess" {
 # Create Public Subnet for EC2
 resource "aws_subnet" "prod-subnet-public-1" {
   vpc_id                  = local.vpc_id
-  cidr_block = "10.0.1.0/24"
+  cidr_block = "172.31.1.0/24"
   map_public_ip_on_launch = "true" //it makes this a public subnet
   availability_zone       = var.AZ1
 
@@ -30,7 +31,7 @@ resource "aws_subnet" "prod-subnet-public-1" {
 # Create Private subnet for RDS
 resource "aws_subnet" "prod-subnet-private-1" {
   vpc_id                  = local.vpc_id
-  cidr_block = "172.2.0.0/24"
+  cidr_block = "172.31.2.0/24"
   map_public_ip_on_launch = "false" //it makes private subnet
   availability_zone       = var.AZ2
 
@@ -39,7 +40,7 @@ resource "aws_subnet" "prod-subnet-private-1" {
 # Create second Private subnet for RDS
 resource "aws_subnet" "prod-subnet-private-2" {
   vpc_id                  = local.vpc_id
-  cidr_block = "172.1.0.0/24"
+  cidr_block = "172.31.3.0/24"
   map_public_ip_on_launch = "false" //it makes private subnet
   availability_zone       = var.AZ3
 
@@ -48,10 +49,7 @@ resource "aws_subnet" "prod-subnet-private-2" {
 
 
 # Create IGW for internet connection 
-resource "aws_internet_gateway" "prod-igw" {
-  vpc_id = local.vpc_id
 
-}
 
 # Creating Route table 
 resource "aws_route_table" "prod-public-crt" {
@@ -61,7 +59,7 @@ resource "aws_route_table" "prod-public-crt" {
     //associated subnet can reach everywhere
     cidr_block = "0.0.0.0/0"
     //CRT uses this IGW to reach internet
-    gateway_id = aws_internet_gateway.prod-igw.id
+    gateway_id = local.prodigw_id
   }
 
 
