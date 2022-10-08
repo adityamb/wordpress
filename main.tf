@@ -198,7 +198,7 @@ resource "aws_instance" "wordpressec2" {
 // Sends your public key to the instance
 resource "aws_key_pair" "mykey-pair" {
   key_name   = "mykey-pair"
-  public_key = file(var.PUBLIC_KEY_PATH)
+  public_key = file(local.private_key_path)
 }
 
 # creating Elastic IP for EC2
@@ -228,7 +228,7 @@ resource "null_resource" "Wordpress_Installation_Waiting" {
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file(var.PRIV_KEY_PATH)
+    private_key = file(local.private_key_path)
     host        = aws_eip.eip.public_ip
   }
 
