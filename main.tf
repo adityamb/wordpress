@@ -3,7 +3,7 @@ locals {
   vpc_id = "vpc-041501c418890ac20"
   ssh_user = "ubuntu"
   key_name = "Demokey"
-  private_key_path = "/home/labsuser/wordpress_project/Demokey.pem"
+  private_key_path = "/home/labsuser/wordpress_proj/Demokey.pem"
 }
 
 provider "aws" {
