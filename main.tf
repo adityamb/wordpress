@@ -169,7 +169,7 @@ resource "aws_db_instance" "wordpressdb" {
 
 # change USERDATA varible value after grabbing RDS endpoint info
 data "template_file" "playbook" {
-  template = file("${path.module}/playbook_test.yml")
+  template = file("${path.module}/playbook_word.yml")
   vars = {
     db_username      = "${var.database_user}"
     db_user_password = "${var.database_password}"
@@ -245,7 +245,7 @@ resource "null_resource" "Wordpress_Installation_Waiting" {
 
 # Play ansiblw playbook
   provisioner "local-exec" {
-     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user -i '${aws_eip.eip.public_ip},' --private-key ${var.PRIV_KEY_PATH}  playbook_word.yml"
+     command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -u ec2-user -i '${aws_eip.eip.public_ip},' --private-key ${var.PRIV_KEY_PATH}  playbook-rendered.yml"
      
  
 
